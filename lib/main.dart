@@ -30,16 +30,27 @@ class _MyAppState extends State<MyApp> {
           'Weather App',
           style: TextStyle(),
         ),
+        elevation: 10,
+        actions: <Widget>[
+          PopupMenuButton<String>(itemBuilder: (BuildContext context) {
+            return {'Setting', 'logout'}.map((String choice) {
+              return PopupMenuItem(
+                value: choice,
+                child: Text(choice),
+              );
+            }).toList();
+          })
+        ],
       ),
       body: Container(
         decoration: const BoxDecoration(
           image: DecorationImage(
               image: NetworkImage(
-                  'https://images.unsplash.com/photo-1464802686167-b939a6910659?q=80&w=1700&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D'),
+                  'https://images.unsplash.com/photo-1593923416234-c99746aff9c8?q=80&w=1587&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D'),
               fit: BoxFit.cover),
         ),
         child: BackdropFilter(
-          filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+          filter: ImageFilter.blur(sigmaX: 8, sigmaY: 8),
           child: Padding(
             padding: const EdgeInsets.all(10),
             child: Center(
@@ -51,7 +62,7 @@ class _MyAppState extends State<MyApp> {
                         onPressed: () {},
                         child: const Text('Find'),
                       ),
-                     const Gap(15),
+                      const Gap(15),
                       Expanded(
                           child: TextField(
                         controller: textEditingController,
