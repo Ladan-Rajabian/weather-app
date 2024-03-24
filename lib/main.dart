@@ -3,6 +3,7 @@ import 'dart:ui';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
+import 'package:weather_app/currentCityDataModel.dart';
 
 void main() {
   runApp(
@@ -282,6 +283,23 @@ class _MyAppState extends State<MyApp> {
 
     print(response.data);
     print(response.statusCode);
+
+    var dataModel = CurrentCityDataModel(
+        response.data['name'],
+        response.data['coord']['lon'],
+        response.data['coord']['lat'],
+        response.data['weather'][0]['main'],
+        response.data['weather'][0]['description'],
+        response.data['main']['temp'],
+        response.data['main']['temp_min'],
+        response.data['main']['temp_max'],
+        response.data['main']['pressure'],
+        response.data['main']['humidity'],
+        response.data['wind']['speed'],
+        response.data['dt'],
+        response.data['sys']['country'],
+        response.data['sys']['sunrise'],
+        response.data['sys']['sunset']);
   }
 }
 
