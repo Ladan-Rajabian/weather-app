@@ -1,5 +1,6 @@
 import 'dart:ui';
 
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
 
@@ -20,6 +21,12 @@ class MyApp extends StatefulWidget {
 
 class _MyAppState extends State<MyApp> {
   TextEditingController textEditingController = TextEditingController();
+
+  @override
+  void initState() {
+    super.initState();
+    sendRequestCurrentWeather();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -263,6 +270,18 @@ class _MyAppState extends State<MyApp> {
         ),
       ),
     );
+  }
+
+  void sendRequestCurrentWeather() async {
+    var apiKey = '222c0bef7afb9b59c061a652e9760829';
+    var cityName = 'Tehran';
+
+    var response = await Dio().get(
+        "https://api.openweathermap.org/data/2.5/weather",
+        queryParameters: {'q': cityName, 'appid': apiKey, 'units': 'metric'});
+
+    print(response.data);
+    print(response.statusCode);
   }
 }
 
