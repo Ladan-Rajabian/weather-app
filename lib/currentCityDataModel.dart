@@ -39,7 +39,7 @@ class CurrentCityDataModel {
   get dataTime => _dataTime;
   get windSpeed => _windSpeed;
   get humidity => _humidity;
-  get pressure => _humidity;
+  get pressure => _pressure;
   get tempMax => _tempMax;
   get tempMin => _tempMin;
   get temp => _temp;
