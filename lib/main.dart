@@ -3,6 +3,7 @@ import 'dart:ui';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
+import 'package:intl/intl.dart';
 import 'package:weather_app/currentCityDataModel.dart';
 
 void main() {
@@ -22,12 +23,13 @@ class MyApp extends StatefulWidget {
 
 class _MyAppState extends State<MyApp> {
   late Future<CurrentCityDataModel> currentWeatherFuture;
+  var cityName = 'Tehran';
   TextEditingController textEditingController = TextEditingController();
 
   @override
   void initState() {
     super.initState();
-    currentWeatherFuture = sendRequestCurrentWeather();
+    currentWeatherFuture = sendRequestCurrentWeather(cityName);
   }
 
   @override
@@ -55,6 +57,17 @@ class _MyAppState extends State<MyApp> {
         future: currentWeatherFuture,
         builder: (context, snapshot) {
           if (snapshot.hasData) {
+            CurrentCityDataModel? cityDataModel = snapshot.data;
+
+            final formatter = DateFormat.jm();
+            var sunRise = formatter.format(
+                new DateTime.fromMillisecondsSinceEpoch(
+                    cityDataModel!.sunRise * 1000,
+                    isUtc: true));
+            var sunSet = formatter.format(
+              new DateTime.fromMillisecondsSinceEpoch(cityDataModel.sunSet * 1000, isUtc: true)
+            );
+
             return Container(
               decoration: const BoxDecoration(
                 image: DecorationImage(
@@ -88,19 +101,19 @@ class _MyAppState extends State<MyApp> {
                         ),
                         const Gap(30),
                         Text(
-                          'Montain View',
+                          cityDataModel!.cityName,
                           style: _mytextstyle.large,
                         ),
                         const Gap(40),
                         Text(
-                          'Clear sky',
+                          cityDataModel.description,
                           style: _mytextstyle.medium,
                         ),
                         const Gap(20),
                         Icon(Icons.sunny, color: Colors.white, size: 80),
                         const Gap(20),
                         Text(
-                          '14\u00B0',
+                          cityDataModel.temp.toString(),
                           style: TextStyle(fontSize: 48, color: Colors.white),
                         ),
                         const Gap(15),
@@ -115,7 +128,7 @@ class _MyAppState extends State<MyApp> {
                                 ),
                                 const Gap(5),
                                 Text(
-                                  '16\u00B0',
+                                  cityDataModel.tempMax.toString(),
                                   style: _mytextstyle.medium,
                                 ),
                               ],
@@ -127,7 +140,7 @@ class _MyAppState extends State<MyApp> {
                               height: 45,
                             ),
                             const Gap(10),
-                            const Column(
+                            Column(
                               children: [
                                 const Text(
                                   'Min',
@@ -135,7 +148,7 @@ class _MyAppState extends State<MyApp> {
                                 ),
                                 const Gap(5),
                                 Text(
-                                  '12\u00B0',
+                                  cityDataModel.tempMin.toString(),
                                   style: _mytextstyle.medium,
                                 ),
                               ],
@@ -194,15 +207,15 @@ class _MyAppState extends State<MyApp> {
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                           children: [
-                            const Column(
+                            Column(
                               children: [
-                                Text(
+                                const Text(
                                   'Wind speed',
                                   style: _mytextstyle.small,
                                 ),
-                                Gap(10),
+                                const Gap(10),
                                 Text(
-                                  '4.73 m/s',
+                                  cityDataModel.windSpeed.toString() + "m/s",
                                   style: _mytextstyle.small,
                                 ),
                               ],
@@ -216,13 +229,13 @@ class _MyAppState extends State<MyApp> {
                             Gap(15),
                             Column(
                               children: [
-                                Text(
+                              const  Text(
                                   'Sun raise',
                                   style: _mytextstyle.small,
                                 ),
                                 Gap(10),
                                 Text(
-                                  '6:19 pm',
+                                  sunRise,
                                   style: _mytextstyle.small,
                                 ),
                               ],
@@ -240,14 +253,14 @@ class _MyAppState extends State<MyApp> {
                                   'Sun set',
                                   style: _mytextstyle.small,
                                 ),
-                                Gap(10),
+                                const Gap(10),
                                 Text(
-                                  '6:19 pm',
+                                 sunSet,
                                   style: _mytextstyle.small,
                                 ),
                               ],
                             ),
-                            Gap(10),
+                            const Gap(10),
                             Container(
                               color: const Color.fromARGB(255, 226, 226, 226),
                               width: 1,
@@ -262,7 +275,7 @@ class _MyAppState extends State<MyApp> {
                                 ),
                                 Gap(10),
                                 Text(
-                                  '70%',
+                                  cityDataModel.humidity.toString() + "%",
                                   style: _mytextstyle.small,
                                 ),
                               ],
@@ -276,47 +289,45 @@ class _MyAppState extends State<MyApp> {
               ),
             );
           } else {
-           return const Center(
-            child: CircularProgressIndicator(),
-           );
+            return const Center(
+              child: CircularProgressIndicator(),
+            );
           }
         },
       ),
     );
   }
-  }
+}
 
-  Future<CurrentCityDataModel> sendRequestCurrentWeather() async {
-    var apiKey = '222c0bef7afb9b59c061a652e9760829';
-    var cityName = 'Tehran';
+Future<CurrentCityDataModel> sendRequestCurrentWeather(String cityName) async {
+  var apiKey = '222c0bef7afb9b59c061a652e9760829';
 
-    var response = await Dio().get(
-        "https://api.openweathermap.org/data/2.5/weather",
-        queryParameters: {'q': cityName, 'appid': apiKey, 'units': 'metric'});
+  var response = await Dio().get(
+      "https://api.openweathermap.org/data/2.5/weather",
+      queryParameters: {'q': cityName, 'appid': apiKey, 'units': 'metric'});
 
-    print(response.data);
-    print(response.statusCode);
+  print(response.data);
+  print(response.statusCode);
 
-    var dataModel = CurrentCityDataModel(
-        response.data['name'],
-        response.data['coord']['lon'],
-        response.data['coord']['lat'],
-        response.data['weather'][0]['main'],
-        response.data['weather'][0]['description'],
-        response.data['main']['temp'],
-        response.data['main']['temp_min'],
-        response.data['main']['temp_max'],
-        response.data['main']['pressure'],
-        response.data['main']['humidity'],
-        response.data['wind']['speed'],
-        response.data['dt'],
-        response.data['sys']['country'],
-        response.data['sys']['sunrise'],
-        response.data['sys']['sunset']);
+  var dataModel = CurrentCityDataModel(
+      response.data['name'],
+      response.data['coord']['lon'],
+      response.data['coord']['lat'],
+      response.data['weather'][0]['main'],
+      response.data['weather'][0]['description'],
+      response.data['main']['temp'],
+      response.data['main']['temp_min'],
+      response.data['main']['temp_max'],
+      response.data['main']['pressure'],
+      response.data['main']['humidity'],
+      response.data['wind']['speed'],
+      response.data['dt'],
+      response.data['sys']['country'],
+      response.data['sys']['sunrise'],
+      response.data['sys']['sunset']);
 
-    return dataModel;
-  }
-
+  return dataModel;
+}
 
 class _mytextstyle {
   static const large =
